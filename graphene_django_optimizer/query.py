@@ -225,11 +225,11 @@ class QueryOptimizer(object):
         if isinstance(value, Variable):
             var_name = value.name.value
             value = info.variable_values.get(var_name)
-        if isinstance(value, InputObjectType):
+            return value
+        elif isinstance(value, InputObjectType):
             return value.__dict__
         else:
             return GenericScalar.parse_literal(value)
-        return value
 
     def _optimize_field_by_hints(self, store, selection, field_def, parent_type):
         optimization_hints = self._get_optimization_hints(field_def.resolver)
@@ -279,17 +279,27 @@ class QueryOptimizer(object):
     def _get_name_from_resolver(self, resolver):
         optimization_hints = self._get_optimization_hints(resolver)
         if optimization_hints:
-            name = optimization_hints.model_field
-            if name:
-                return name
+            name_fn = optimization_hints.model_field
+            if name_fn:
+                return name_fn()
         if self._is_resolver_for_id_field(resolver):
             return 'id'
         elif isinstance(resolver, functools.partial):
             resolver_fn = resolver
             if resolver_fn.func != default_resolver:
-                resolver_fn = resolver_fn.args[0]
+                # Some resolvers have the partial function as the second
+                # argument.
+                for arg in resolver_fn.args:
+                    if isinstance(arg, (str, functools.partial)):
+                        break
+                else:
+                    # No suitable instances found, default to first arg
+                    arg = resolver_fn.args[0]
+                resolver_fn = arg
             if isinstance(resolver_fn, functools.partial) and resolver_fn.func == default_resolver:
                 return resolver_fn.args[0]
+            if self._is_resolver_for_id_field(resolver_fn):
+                return 'id'
             return resolver_fn
 
     def _is_resolver_for_id_field(self, resolver):

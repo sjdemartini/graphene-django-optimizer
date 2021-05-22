@@ -20,6 +20,7 @@ def test_should_return_valid_result_in_a_relay_query():
                 edges {
                     node {
                         id
+                        parentId
                         name
                     }
                 }
@@ -27,7 +28,8 @@ def test_should_return_valid_result_in_a_relay_query():
         }
     ''')
     assert not result.errors
-    assert result.data['relayItems']['edges'][0]['node']['id'] == '7'
+    assert result.data['relayItems']['edges'][0]['node']['id'] == 'SXRlbU5vZGU6Nw=='
+    assert result.data['relayItems']['edges'][0]['node']['parentId'] == 'SXRlbU5vZGU6Tm9uZQ=='
     assert result.data['relayItems']['edges'][0]['node']['name'] == 'foo'
 
 
@@ -162,6 +164,7 @@ def test_should_resolve_nested_variables():
                             edges {
                                 node {
                                     id
+                                    parentId
                                 }
                             }
                         }
@@ -175,7 +178,8 @@ def test_should_resolve_nested_variables():
     assert len(item_edges) == 1
     child_edges = item_edges[0]['node']['relayAllChildren']['edges'][0]
     assert len(child_edges) == 1
-    assert child_edges['node']['id'] == '8'
+    assert child_edges['node']['id'] == 'SXRlbU5vZGU6OA=='
+    assert child_edges['node']['parentId'] == 'SXRlbU5vZGU6Nw=='
 
 
 # @pytest.mark.django_db

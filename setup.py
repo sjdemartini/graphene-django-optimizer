@@ -14,7 +14,7 @@ def read(fname):
 
 setup(
     name='graphene-django-optimizer',
-    version='0.6.1',
+    version='0.8.0',
     author='Tomás Fox',
     author_email='tomas.c.fox@gmail.com',
     description='Optimize database access inside graphene queries.',
@@ -36,10 +36,14 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Framework :: Django',
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
     ],
 )

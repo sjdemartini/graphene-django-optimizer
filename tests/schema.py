@@ -1,7 +1,7 @@
 import graphene
 from django.db.models import Prefetch, Count, Value, F, CharField
 from django.db.models.functions import Concat
-from graphene import ConnectionField
+from graphene import ConnectionField, relay
 from graphene_django.fields import DjangoConnectionField
 import graphene_django_optimizer as gql_optimizer
 from graphene_django_optimizer import OptimizedDjangoObjectType
@@ -39,8 +39,8 @@ class ItemFilterInput(graphene.InputObjectType):
 
 
 class ItemInterface(graphene.Interface):
-    id = graphene.ID(required=True)
-    parent_id = graphene.ID()
+    id = relay.GlobalID()
+    parent_id = relay.GlobalID()
     foo = graphene.String()
     title = graphene.String()
     unoptimized_title = graphene.String()
@@ -65,7 +65,7 @@ class ItemInterface(graphene.Interface):
         return 'bar'
 
     @gql_optimizer.resolver_hints(
-        model_field='children',
+        model_field=lambda: 'children',
     )
     def resolve_children_names(root, info):
         return ' '.join(item.name for item in root.children.all())

@@ -144,13 +144,38 @@ def test_should_return_valid_result_with_prefetch_related_as_a_function():
                 foo
                 filteredChildren(name: "bar") {
                     id
+                    parentId
                     foo
                 }
             }
         }
     ''')
     assert not result.errors
-    assert result.data['items'][0]['filteredChildren'][0]['id'] == '2'
+    assert result.data['items'][0]['filteredChildren'][0]['id'] == 'SXRlbVR5cGU6Mg=='
+    assert result.data['items'][0]['filteredChildren'][0]['parentId'] == 'SXRlbVR5cGU6MQ=='
+
+
+@pytest.mark.django_db
+def test_should_return_valid_result_with_prefetch_related_as_a_function_using_variable():
+    parent = Item.objects.create(id=1, name='foo')
+    Item.objects.create(id=2, name='bar', parent=parent)
+    Item.objects.create(id=3, name='foobar', parent=parent)
+    result = schema.execute('''
+        query Foo ($name: String!) {
+            items(name: "foo") {
+                id
+                foo
+                filteredChildren(name: $name) {
+                    id
+                    parentId
+                    foo
+                }
+            }
+        }
+    ''', variables={'name': 'bar'})
+    assert not result.errors
+    assert result.data['items'][0]['filteredChildren'][0]['id'] == 'SXRlbVR5cGU6Mg=='
+    assert result.data['items'][0]['filteredChildren'][0]['parentId'] == 'SXRlbVR5cGU6MQ=='
 
 
 # @pytest.mark.django_db
